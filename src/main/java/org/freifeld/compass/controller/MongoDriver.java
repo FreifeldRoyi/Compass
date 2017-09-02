@@ -4,8 +4,9 @@ import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.freifeld.compass.controller.configuration.EnvironmentVariable;
+import org.freifeld.compass.controller.configuration.ConfigVariable;
 
+import javax.annotation.PostConstruct;
 import javax.ejb.ConcurrencyManagement;
 import javax.ejb.ConcurrencyManagementType;
 import javax.ejb.Singleton;
@@ -19,20 +20,23 @@ import javax.inject.Inject;
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 public class MongoDriver
 {
+	private static final String DATABASE_NAME = "ContainerDB";
+
 	private MongoClient client;
 
 	@Inject
-	@EnvironmentVariable("MONGO_IP_ADDRESS")
+	@ConfigVariable("MONGO_IP_ADDRESS")
 	private String mongoIPAddress;
 
 	@Inject
-	@EnvironmentVariable("MONGO_PORT")
+	@ConfigVariable("MONGO_PORT")
 	private int mongoPort;
 
-	public static void main(String[] args)
+	@PostConstruct
+	private void init()
 	{
-		MongoClient client = new MongoClient("localhost", 27017);
-		MongoDatabase tester = client.getDatabase("TestingDatabase");
+		MongoClient client = new MongoClient(this.mongoIPAddress, this.mongoPort);
+		MongoDatabase tester = client.getDatabase(DATABASE_NAME);
 		tester.createCollection("testingCollection");
 		MongoCollection<Document> collection = tester.getCollection("testingCollection");
 		Document document = new Document();

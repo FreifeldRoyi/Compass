@@ -12,7 +12,7 @@ import javax.enterprise.inject.spi.InjectionPoint;
 public class Configuration
 {
 	@Produces
-	@EnvironmentVariable
+	@ConfigVariable
 	public String getStringEnv(InjectionPoint ip)
 	{
 		String fieldName = ip.getMember().getName();
@@ -20,8 +20,8 @@ public class Configuration
 	}
 
 	@Produces
-	@EnvironmentVariable
-	public int getIntEnv(InjectionPoint ip)
+	@ConfigVariable
+	public int getIntEnv(InjectionPoint ip)e
 	{
 		String env = this.getStringEnv(ip);
 		return Integer.parseInt(env);
