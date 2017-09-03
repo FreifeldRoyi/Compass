@@ -1,4 +1,4 @@
-package org.freifeld.compass.controller.configuration;
+package org.freifeld.compass.entity.configuration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
@@ -15,13 +15,13 @@ public class Configuration
 	@ConfigVariable
 	public String getStringEnv(InjectionPoint ip)
 	{
-		String fieldName = ip.getMember().getName();
-		return System.getenv().getOrDefault(fieldName, "--UNDEFNIED--");
+		ConfigVariable configVariable = ip.getAnnotated().getAnnotation(ConfigVariable.class);
+		return System.getenv().get(configVariable.value());
 	}
 
 	@Produces
 	@ConfigVariable
-	public int getIntEnv(InjectionPoint ip)e
+	public int getIntEnv(InjectionPoint ip)
 	{
 		String env = this.getStringEnv(ip);
 		return Integer.parseInt(env);
