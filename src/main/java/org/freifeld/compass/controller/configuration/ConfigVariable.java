@@ -1,4 +1,4 @@
-package org.freifeld.compass.entity.configuration;
+package org.freifeld.compass.controller.configuration;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
