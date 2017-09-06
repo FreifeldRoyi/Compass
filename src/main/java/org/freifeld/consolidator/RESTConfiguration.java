@@ -1,4 +1,4 @@
-package org.freifeld.compass;
+package org.freifeld.consolidator;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;

@@ -1,6 +1,6 @@
-package org.freifeld.compass.boundary;
+package org.freifeld.consolidator.boundary;
 
-import org.freifeld.compass.controller.MongoDriver;
+import org.freifeld.consolidator.controller.MongoDriver;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;

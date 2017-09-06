@@ -1,4 +1,4 @@
-package org.freifeld.compass.entity;
+package org.freifeld.consolidator.entity;
 
 /**
  * @author royif

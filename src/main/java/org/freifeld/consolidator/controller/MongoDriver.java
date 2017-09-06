@@ -1,4 +1,4 @@
-package org.freifeld.compass.controller;
+package org.freifeld.consolidator.controller;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientOptions;
@@ -9,7 +9,7 @@ import org.bson.BsonDateTime;
 import org.bson.BsonDocument;
 import org.bson.BsonString;
 import org.bson.json.JsonWriterSettings;
-import org.freifeld.compass.controller.configuration.ConfigVariable;
+import org.freifeld.consolidator.controller.configuration.ConfigVariable;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -33,7 +33,7 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Updates.addEachToSet;
 import static com.mongodb.client.model.Updates.pullByFilter;
-import static org.freifeld.compass.entity.TagMetaData.*;
+import static org.freifeld.consolidator.entity.TagMetaData.*;
 
 /**
  * @author royif

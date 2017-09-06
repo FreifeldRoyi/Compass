@@ -1,13 +1,11 @@
-package org.freifeld.compass.boundary;
+package org.freifeld.consolidator.boundary;
 
-import org.freifeld.compass.controller.MongoDriver;
+import org.freifeld.consolidator.controller.MongoDriver;
 
 import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriInfo;
 import java.net.URI;
 
 @Stateless

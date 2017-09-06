@@ -1,4 +1,4 @@
-package org.freifeld.compass.controller;
+package org.freifeld.consolidator.controller;
 
 import com.mongodb.event.CommandFailedEvent;
 import com.mongodb.event.CommandListener;

@@ -1,4 +1,4 @@
-package org.freifeld.compass.controller.configuration;
+package org.freifeld.consolidator.controller.configuration;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;

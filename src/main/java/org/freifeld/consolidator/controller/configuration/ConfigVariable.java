@@ -1,4 +1,4 @@
-package org.freifeld.compass.controller.configuration;
+package org.freifeld.consolidator.controller.configuration;
 
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
