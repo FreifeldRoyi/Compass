@@ -1,6 +1,8 @@
 package org.freifeld.compass.controller;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientOptions;
+import com.mongodb.ServerAddress;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.BsonDateTime;
@@ -28,7 +30,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.in;
 import static com.mongodb.client.model.Updates.addEachToSet;
+import static com.mongodb.client.model.Updates.pullByFilter;
+import static org.freifeld.compass.entity.TagMetaData.*;
 
 /**
  * @author royif
@@ -38,8 +43,9 @@ import static com.mongodb.client.model.Updates.addEachToSet;
 @ConcurrencyManagement(ConcurrencyManagementType.CONTAINER)
 public class MongoDriver
 {
-	private static final JsonWriterSettings SETTINGS = JsonWriterSettings.builder().objectIdConverter((value, writer) -> writer.writeString(value.toString()))
-			.dateTimeConverter((value, writer) -> writer.writeString(Instant.ofEpochMilli(value).toString())).build();
+	private static final JsonWriterSettings TO_JSON_SETTINGS = JsonWriterSettings.builder()
+			.dateTimeConverter((value, writer) -> writer.writeString(Instant.ofEpochMilli(value).toString()))
+			.build();
 
 	private MongoClient client;
 
@@ -61,15 +67,16 @@ public class MongoDriver
 	@ConfigVariable("MONGO_COLLECTION_NAME")
 	private String mongoCollectionName;
 
-	private static JsonWriterSettings settings()
-	{
-		return JsonWriterSettings.builder().objectIdConverter((value, writer) -> writer.writeRaw(value.toString())).build();
-	}
-
 	@PostConstruct
 	private void setUp()
 	{
-		this.client = new MongoClient(this.mongoIPAddress, this.mongoPort);
+		ServerAddress serverAddress = new ServerAddress(this.mongoIPAddress, this.mongoPort);
+		MongoClientOptions clientOptions = MongoClientOptions.builder()
+				.applicationName("Consolidator")
+				.addCommandListener(new MongoCommandListener())
+				.build();
+
+		this.client = new MongoClient(serverAddress, clientOptions);
 		this.database = this.client.getDatabase(this.mongoDatabaseName);
 	}
 
@@ -79,30 +86,16 @@ public class MongoDriver
 		this.client.close();
 	}
 
-	public void addTags(String... tags)
-	{
-		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
-		List<BsonDocument> docs = Stream.of(tags).map(s ->
-		{
-			BsonDocument doc = new BsonDocument();
-			doc.append("name", new BsonString(s)).append("creationDate", new BsonDateTime(System.currentTimeMillis()));
-			return doc;
-		}).collect(Collectors.toList());
-		collection.insertMany(docs);
-	}
-
-	public void addContainer(String tagName, String... containers)
-	{
-		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
-		collection.findOneAndUpdate(eq("name", tagName), addEachToSet("containers", Arrays.asList(containers)));
-	}
-
-	public JsonArray allTags()
+	public JsonArray getAllTags()
 	{
 		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
 
 		JsonArrayBuilder builder = Json.createArrayBuilder();
-		collection.find().map(doc -> doc.toJson(SETTINGS)).forEach((Consumer<? super String>) s ->
+		collection.find().map(doc ->
+		{
+			doc.remove("_id");
+			return doc.toJson(TO_JSON_SETTINGS);
+		}).forEach((Consumer<? super String>) s ->
 		{
 			try (JsonReader reader = Json.createReader(new StringReader(s)))
 			{
@@ -111,5 +104,36 @@ public class MongoDriver
 		});
 
 		return builder.build();
+	}
+
+	public void addTags(String... tags)
+	{
+		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
+		List<BsonDocument> docs = Stream.of(tags).map(s ->
+		{
+			BsonDocument doc = new BsonDocument();
+			doc.append(NAME, new BsonString(s)).append(CREATION_DATE, new BsonDateTime(System.currentTimeMillis()));
+			return doc;
+		}).collect(Collectors.toList());
+		collection.insertMany(docs);
+	}
+
+	public void removeTags(String... tags)
+	{
+		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
+		collection.deleteMany(in(NAME, tags));
+	}
+
+	public void addContainer(String tagName, String... containers)
+	{
+		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
+		collection.findOneAndUpdate(eq(NAME, tagName), addEachToSet(CONTAINERS, Arrays.asList(containers)));
+	}
+
+	public void removeContainer(String tagName, String... containers)
+	{
+		MongoCollection<BsonDocument> collection = this.database.getCollection(this.mongoCollectionName, BsonDocument.class);
+		collection.findOneAndUpdate(eq(NAME, tagName), pullByFilter(in(CONTAINERS, containers)));
+
 	}
 }
