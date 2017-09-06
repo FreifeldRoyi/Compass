@@ -1,5 +1,5 @@
 FROM airhacks/payara-micro
-ENV ARCHIVE_NAME Compass.war
+ENV ARCHIVE_NAME Consolidator.war
 COPY target/${ARCHIVE_NAME} ${INSTALL_DIR}
 
 ENV MONGO_IP_ADDRESS mongoer
